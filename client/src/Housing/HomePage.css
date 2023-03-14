@@ -1,0 +1,89 @@
+.MainContainer{
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: center;
+    background-color: #e8eaee;
+    
+}
+
+.CardContainer{
+    max-width: 300px;
+    margin: 15px;
+}
+
+.detailsContainer{
+    display: flex;
+    flex-direction: row;
+    padding: 10px;
+    /* flex-wrap: wrap;
+    justify-content: center;
+    background-color: #e8eaee; */
+}
+
+.detailsContainer>div>img{
+    max-width: 500px;
+}
+.detailsContainer>div{
+    margin: 10px;
+    
+}
+.detailsContainer>div>p{
+    color: black;
+    font-size: small;
+}
+
+.AppPage-global-Container{
+    background-color:#e8eaee;
+    margin: 25px;
+    padding-top: 20px;
+    width: 100%;
+    /* height: 100%; */
+    /* padding: 15px;
+    margin: 10px; */
+    
+}
+
+.AppPage-global-Container>div:first-child>p{
+     color: tomato;
+}
+
+.spin-holder{
+    position: absolute;
+    display:flex;
+    width: 100%;
+     height: 65%; 
+     z-index: 15;
+     align-items: center;
+     justify-content: center;
+     text-align: center;
+}
+
+#req-claims-container{
+    /* background-color: gray; */
+    margin: 5px;
+    padding: 5px;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+}
+
+#req-claims-container>p{
+    font-size: small;
+    margin: 2px;
+    padding: 3px;
+    color: black;
+}
+
+.QRContainer{
+    padding: 10px;
+    margin: 10px;
+    justify-content: center;
+    text-align: center;
+    
+}
+.QRContainer>p{
+    color: black;
+    font-size: small;
+    justify-content: center;
+}
