@@ -14,6 +14,8 @@ function ApplicationPage(props) {
     const [openModal,setOpenModal] = useState(false)
     const [verified,setVerified] = useState(false);
     const [renderSpin,setrenderSpin] = useState(false);
+    const [qrModal,setQrModal] = useState(false)
+    const [verifiedClaim,setVerifiedClaim] = useState([false,false,false]) //supposing we have only 3 claims to verify 
     const [userData,setUserData] = useState({
             fname : "",
             lname : "",
@@ -51,18 +53,55 @@ function ApplicationPage(props) {
         </Form.Item>
       );
 
+
+      const Communicate = () => {
+        const claimdata = {} 
+        var receivedData = {}
+        targetHouse.RequiredClaims && targetHouse.RequiredClaims.map((e,i) => {
+
+             Object.assign(claimdata,{["claim"+i] : e})
+  
+        })
+       
+        console.log(claimdata)
+        const ws = new WebSocket("ws://localhost:8080");
+        //First we send claims to verify
+       ws.onopen = () => {
+         console.log("WebSocket connection established");
+         ws.send(JSON.stringify(claimdata))
+       };
+     
+
+       //here we receive either the claims are verified and also the userdata
+       ws.onmessage = (event) => {
+         console.log(`Received from client message: ${event.data}`);
+         receivedData = JSON.parse(event.data)
+         setUserData(receivedData['user'])
+         //We set verified claims as an array where each index indicate the status of a claims
+         setVerifiedClaim(receivedData['claims'])
+        console.log(verifiedClaim)
+       };
+       if(qrModal == true) ws.close()
+
+       setrenderSpin(false)
+       setQrModal(false)
+      }
+      
+
       const Verify = () => {
+        setQrModal(true)
+        
         setrenderSpin(true);
         setTimeout(() => {
-            if(user.email){
-                setUserData(user)
-                setVerified(true);
-                setrenderSpin(false)
-            }
+            Communicate()
         }, 3500);
       }
 
-    
+
+    const CloseQrCommunication = () => {
+      setQrModal(false)
+      
+    }
 
     const ApplicationForm = () => (
                 <Form
@@ -119,7 +158,7 @@ function ApplicationPage(props) {
 
             <div id='req-claims-container'>
                 {targetHouse.RequiredClaims && targetHouse.RequiredClaims.map((e,i) =>(
-                       <p>{e}  &nbsp;&nbsp;&nbsp;{!verified ? <InfoCircleOutlined size={"large"} style={{fontSize:'20px'}}/> : <CheckCircleFilled size='large' style={{color : '#52c41a',fontSize:'20px'}} /> }</p>
+                       <p>{e}  &nbsp;&nbsp;&nbsp;{verifiedClaim[0] == false? <InfoCircleOutlined size={"large"} style={{fontSize:'20px'}}/> : <CheckCircleFilled size='large' style={{color : '#52c41a',fontSize:'20px'}} /> }</p>
                     
                 ))}
             </div>
@@ -128,16 +167,7 @@ function ApplicationPage(props) {
                  
               </Col>
               <Col span={16}>
-              <div style={{
-                display : 'flex',
-                flexDirection : 'row',
-                justifyContent : 'center',
-                margin : '5px',
-                padding : '5px'
-
-              }}>
-                <QRCode value={targetHouse.ID} />
-            </div>
+             
               </Col>
             </Row>      
             <Form.Item wrapperCol={{ offset: 8, span: 16 }}>
@@ -162,8 +192,8 @@ function ApplicationPage(props) {
                 title="Application"
                 centered
                 open={openModal}
-                onOk={() => setOpenModal(false)}
-                onCancel={() => setOpenModal(false)}
+                onOk={CloseQrCommunication}
+                onCancel={CloseQrCommunication}
                 width={1000}
               >
                 <div>
@@ -177,6 +207,29 @@ function ApplicationPage(props) {
             </>
           );
 
+          const QrCodeHolder = () => (
+            <>
+              <Modal
+                title="QR"
+                centered
+                open={qrModal}
+                onOk={() => setQrModal(false)}
+                onCancel={() => setQrModal(false)}
+                width={500}
+              >
+                 <div style={{
+                display : 'flex',
+                flexDirection : 'row',
+                justifyContent : 'center',
+                margin : '15px',
+                padding : '8px'
+
+              }}>
+                 <QRCode value={targetHouse.ID} />
+            </div>
+              </Modal>
+            </>
+          );
 
 
 
@@ -203,6 +256,7 @@ function ApplicationPage(props) {
                 {/* Here goes the form */}
                 <ApplicationForm />
                 <ApplicationResult />
+                <QrCodeHolder />
                 </Col>
             </Row>:
             <Spin size='large' />
